@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    build:
+      context: .
+      target: ${NODE_ENV:-development}  # Uses development by default, production if specified
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      MONGODB_URI: mongodb://mongo:27017/cupcakestore
+    volumes:
+      - .:/app  # Ensures hot-reloading in development
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+      - ./scripts/init_cupcakes.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:    # Define the network at the root level
+    driver: bridge
