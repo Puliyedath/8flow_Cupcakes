@@ -1,6 +1,7 @@
 // src/app/api/cupcake/route.ts
 
 import { NextResponse } from 'next/server';
+import { Types } from 'mongoose';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongoose';
 import Cupcake from '@/models/Cupcake';
@@ -20,13 +21,15 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Invalid ID supplied' }, { status: 400 });
     }
 
+    const id = new Types.ObjectId(data.id);
+
     // Check if the cupcake exists before updating
-    const existingCupcake = await Cupcake.findById(data.id);
+    const existingCupcake = await Cupcake.findById(id);
     if (!existingCupcake) {
       return NextResponse.json({ error: 'Cupcake not found' }, { status: 404 });
     }
 
-    const updatedCupcake = await Cupcake.findByIdAndUpdate(data.id, data, {
+    const updatedCupcake = await Cupcake.findByIdAndUpdate(id, data, {
       new: true,           // Return the updated document
       runValidators: true, // Enforce schema validation
       context: 'query',    // Required for certain validators

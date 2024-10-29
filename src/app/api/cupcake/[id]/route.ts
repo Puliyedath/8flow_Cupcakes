@@ -1,5 +1,6 @@
 // src/app/api/cupcake/[id]/route.ts
 
+import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose'; // Import your database connection helper
 import Cupcake from '@/models/Cupcake'; // Import your Mongoose model
@@ -8,7 +9,7 @@ export async function DELETE(request: Request, { params }) {
   await dbConnect();
   const { id }: { id: string }  = await params;
   try {
-    const deletedCupcake = await Cupcake.findByIdAndDelete(id);
+    const deletedCupcake = await Cupcake.findByIdAndDelete(new Types.ObjectId(id));
 
     if (!deletedCupcake) {
       return NextResponse.json({ error: "Cupake not found" }, { status: 404 });
