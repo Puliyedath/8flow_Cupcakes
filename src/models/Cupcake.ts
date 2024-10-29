@@ -39,3 +39,4 @@ const CupcakeSchema: Schema = new Schema({
 const Cupcake: Model<ICupcake> = mongoose.models.Cupcake || model<ICupcake>("Cupcake", CupcakeSchema);
 
 export default Cupcake;
+
