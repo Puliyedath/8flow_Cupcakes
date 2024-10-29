@@ -5,9 +5,10 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose'; // Import your database connection helper
 import Cupcake from '@/models/Cupcake'; // Import your Mongoose model
 
-export async function DELETE(request: Request, { params }) {
+type ParamType = { id: string };
+export async function DELETE(request: Request, context: { params: Promise<ParamType> }) {
   await dbConnect();
-  const { id }: { id: string }  = await params;
+  const { id }  = await context.params;
   try {
     const deletedCupcake = await Cupcake.findByIdAndDelete(new Types.ObjectId(id));
 

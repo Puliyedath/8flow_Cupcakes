@@ -5,13 +5,15 @@ import { Types } from 'mongoose';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongoose';
 import Cupcake from '@/models/Cupcake';
-import { ICupcake } from '@/models/Cupcake';
+import { ICupcake, ICupcakeId } from '@/models/Cupcake';
+
+type CupCakeWithId = ICupcake & ICupcakeId
 
 export async function PUT(request: Request) {
   await dbConnect();
 
 
-  const data = (await request.json()) as Partial<ICupcake>;
+  const data: Partial<CupCakeWithId> = (await request.json()) as Partial<CupCakeWithId>;
   if (!data.name || !data.description || !data.price || !Array.isArray(data.ingredients)) {
     return NextResponse.json({ error: 'Invalid cupcake data' }, { status: 400 });
   }
@@ -21,7 +23,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Invalid ID supplied' }, { status: 400 });
     }
 
-    const id = new Types.ObjectId(data.id);
+    const id = new Types.ObjectId(data.id as string);
+
 
     // Check if the cupcake exists before updating
     const existingCupcake = await Cupcake.findById(id);
@@ -64,21 +67,8 @@ export async function POST(request: Request) {
   await dbConnect(); // Connect to MongoDB
 
   try {
-    const data = await request.json(); // Parse request body
-    const { name, description, price, ingredients }: {
-      name: string;
-      description: string;
-      price: number;
-      ingredients: string[];
-    } = data;
-
-    if (!name || !description || !price || !Array.isArray(ingredients)) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-    const cupcake = new Cupcake({ name, description, price, ingredients });
+    const cupCakeData: Partial<ICupcake> = (await request.json()) as Partial<ICupcake>;
+    const cupcake = new Cupcake(cupCakeData);
     try {
       await cupcake.validate();
     }

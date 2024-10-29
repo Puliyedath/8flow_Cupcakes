@@ -1,11 +1,15 @@
-import mongoose, { Schema, Document, model, Model } from 'mongoose';
+import { Schema, Document, model, Model } from 'mongoose';
 
 // Define the TypeScript interface for a Cupcake document
 export interface ICupcake extends Document {
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  ingredients: string[];
+  ingredients?: string[];
+}
+
+export interface ICupcakeId extends Document {
+  id: string
 }
 
 // Define the Cupcake schema with validation
@@ -35,8 +39,7 @@ const CupcakeSchema: Schema = new Schema({
   },
 });
 
-// Avoid model re-compilation in Next.js
-const Cupcake: Model<ICupcake> = mongoose.models.Cupcake || model<ICupcake>("Cupcake", CupcakeSchema);
+const Cupcake: Model<ICupcake> = model<ICupcake>("Cupcake", CupcakeSchema);
 
 export default Cupcake;
 
