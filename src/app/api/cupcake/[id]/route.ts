@@ -6,7 +6,7 @@ import Cupcake from '@/models/Cupcake'; // Import your Mongoose model
 
 export async function DELETE(request: Request, { params }) {
   await dbConnect();
-  const { id }: { id: string }  = params;
+  const { id }: { id: string }  = await params;
   try {
     const deletedCupcake = await Cupcake.findByIdAndDelete(id);
 
