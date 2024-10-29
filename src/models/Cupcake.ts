@@ -1,4 +1,4 @@
-import { Schema, Document, model, Model } from 'mongoose';
+import { Schema, Document, model, Model, models } from 'mongoose';
 
 // Define the TypeScript interface for a Cupcake document
 export interface ICupcake extends Document {
@@ -20,7 +20,10 @@ const CupcakeSchema: Schema = new Schema({
     minlength: [3, "Name must be at least 3 characters long"],
     maxlength: [50, "Name cannot exceed 50 characters"],
   },
-  description: { type: String, required: false },
+  description: {
+    type: String,
+    required: false
+  },
   price: {
     type: Number,
     required: [true, "Price is required"],
@@ -29,17 +32,12 @@ const CupcakeSchema: Schema = new Schema({
   },
   ingredients: {
     type: [String],
-    required: [true, "Ingredients are required"],
-    validate: {
-      validator: function(value: string[]) {
-        return value.length > 0;
-      },
-      message: "At least one ingredient is required",
-    },
+    required: false
   },
 });
 
-const Cupcake: Model<ICupcake> = model<ICupcake>("Cupcake", CupcakeSchema);
+//<HP> multiple model reloads in dev without the check
+const Cupcake: Model<ICupcake> = (models.Cupcake as Model<ICupcake>) || model<ICupcake>("Cupcake", CupcakeSchema);
 
 export default Cupcake;
 
