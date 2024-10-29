@@ -13,6 +13,8 @@ if (!process.env.MONGODB_URI) {
 console.log("HPU: ", process.env.NEXT_PUBLIC_MONGODB_URI);
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable to preserve the MongoClient
   // across hot-reloads (otherwise, you'll get multiple clients)
@@ -26,6 +28,8 @@ if (process.env.NODE_ENV === 'development') {
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
+/* eslint-enable @typescript-eslint/no-unsafe-assignment */
+/* eslint-enable @typescript-eslint/no-unsafe-member-access */
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export default clientPromise;
