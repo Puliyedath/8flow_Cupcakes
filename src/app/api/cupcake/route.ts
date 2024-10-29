@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongoose';
 import Cupcake from '@/models/Cupcake';
+import validateCupcakeData from '@/utils/model_validation';
 import { ICupcake, ICupcakeId } from '@/models/Cupcake';
 
 type CupCakeWithId = ICupcake & ICupcakeId
@@ -12,19 +13,13 @@ type CupCakeWithId = ICupcake & ICupcakeId
 export async function PUT(request: Request) {
   await dbConnect();
 
-
-  const data: Partial<CupCakeWithId> = (await request.json()) as Partial<CupCakeWithId>;
-  if (!data.name || !data.description || !data.price || !Array.isArray(data.ingredients)) {
-    return NextResponse.json({ error: 'Invalid cupcake data' }, { status: 400 });
-  }
-
   try {
+    const data: Partial<CupCakeWithId> = (await request.json()) as Partial<CupCakeWithId>;
     if (!data.id) {
       return NextResponse.json({ error: 'Invalid ID supplied' }, { status: 400 });
     }
 
     const id = new Types.ObjectId(data.id as string);
-
 
     // Check if the cupcake exists before updating
     const existingCupcake = await Cupcake.findById(id);
@@ -42,17 +37,12 @@ export async function PUT(request: Request) {
   }
   catch (error) {
     console.error("Error handling cupcake:", error);
-    // const typedError = error as Error
-
     // Distinguish validation error specifically
     if (error instanceof mongoose.Error.ValidationError) {
-      const errors = Object.values(error.errors).map((err) => {
-        if (err instanceof mongoose.Error.ValidatorError) {
-          return err.message;
-        }
-        return 'Unknown validation error';
-      });
-      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 405 });
+      const errors = validateCupcakeData(error)
+      if (errors.length !== 0) {
+        return NextResponse.json({ error: 'Validation exception', details: errors }, { status: 405 });
+      }
     }
 
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
@@ -69,15 +59,7 @@ export async function POST(request: Request) {
   try {
     const cupCakeData: Partial<ICupcake> = (await request.json()) as Partial<ICupcake>;
     const cupcake = new Cupcake(cupCakeData);
-    try {
-      await cupcake.validate();
-    }
-    catch (error) {
-      const typedError = error as Error;
-      console.error("Error creating cupcake:", error);
-      return NextResponse.json({ error: `${typedError.message}` }, { status: 405 });
-    }
-
+    await cupcake.validate();
     const savedCupcake: ICupcake = await cupcake.save();
 
     // Return the created cupcake
@@ -86,14 +68,13 @@ export async function POST(request: Request) {
     console.error("Error creating cupcake:", error);
     // Distinguish validation error specifically
     if (error instanceof mongoose.Error.ValidationError) {
-      const errors = Object.values(error.errors).map((err) => {
-        if (err instanceof mongoose.Error.ValidatorError) {
-          return err.message;
-        }
-        return 'Unknown validation error';
-      });
-      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 405 });
+      const errors = validateCupcakeData(error)
+      if (errors.length !== 0) {
+        return NextResponse.json({ error: 'Invalid Input', details: errors }, { status: 405 });
+      }
     }
-    return NextResponse.json({ error: 'Error creating cupcake' }, { status: 500 });
+
   }
+  return NextResponse.json({ error: 'Error creating cupcake' }, { status: 500 });
 }
+
