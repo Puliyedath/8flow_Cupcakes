@@ -1,51 +1,44 @@
-import clientPromise from '../../../lib/mongodb';
+// src/app/api/cupcake/route.ts
 
 import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongoose';
+import Cupcake from '@/models/Cupcake';
+import { ICupcake } from '@/models/Cupcake';
 
-export async function GET() {
-  return NextResponse.json({ message: "Hello from the Cupcake API!" });
-}
+export async function POST(request: Request) {
+  await dbConnect(); // Connect to MongoDB
 
-type StringArray = Array<string>;
-
-interface Cupcake {
-  name: string,
-  id: number,
-  description: string,
-  price: number,
-  ingredients: StringArray
-};
-
-enum StatusCodes {
-  OK = 200,
-  OK_NEW_RESOURCE = 201,
-  BadRequest = 400,
-  Unauthorized,
-  PaymentRequired,
-  Forbidden,
-  NotFound,
-}
-
-function validateCupcake(body): Cupcake {
-  const cupCake: Cupcake = {...body}
-  return cupCake 
-}
-
-
-export async function POST(req) {
   try {
-    const body = await req.json()
-    console.log("HPU: body = ", body)
-    const cupcake: Cupcake = validateCupcake(body);
-    // validate the details
-    const client = await clientPromise;
-    const db = client.db('cupcakestore'); // Replace with your DB name
-    const result = await db.collection('cupcakes').insertOne(cupcake);
-    return NextResponse.json({ _id: result.insertedId }, { status: StatusCodes.OK_NEW_RESOURCE });
+    const data = await request.json(); // Parse request body
+    const { name, description, price, ingredients }: { 
+      name: string; 
+      description: string; 
+      price: number; 
+      ingredients: string[]; 
+    } = data;
+
+    if (!name || !description || !price || !Array.isArray(ingredients)) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+    const cupcake = new Cupcake({ name, description, price, ingredients });
+    try {
+      await cupcake.validate();
+    }
+    catch(error) {
+      const typedError = error as Error;
+      console.error("Error creating cupcake:", error);
+      return NextResponse.json({ error: `${typedError.message}` }, { status: 405 });
+    }
     
-  } catch(error: unknown) {
-    console.log("cupcake_post", error);
-    return NextResponse.json({ error: 'Failed to add a cupcake' }, { status: StatusCodes.BadRequest });
+    const savedCupcake: ICupcake = await cupcake.save();
+
+    // Return the created cupcake
+    return NextResponse.json(savedCupcake, { status: 201 });
+  } catch (error) {
+    console.error("Error creating cupcake:", error);
+    return NextResponse.json({ error: 'Error creating cupcake' }, { status: 500 });
   }
-  
 }
