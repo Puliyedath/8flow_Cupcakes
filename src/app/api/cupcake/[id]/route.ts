@@ -8,9 +8,10 @@ import Cupcake from '@/models/Cupcake'; // Import your Mongoose model
 type ParamType = { id: string };
 export async function DELETE(request: Request, context: { params: Promise<ParamType> }) {
   await dbConnect();
-  const { id }  = await context.params;
   try {
-    const deletedCupcake = await Cupcake.findByIdAndDelete(new Types.ObjectId(id));
+    const { id }  = await context.params;
+    const cupCakeId = new Types.ObjectId(id);
+    const deletedCupcake = await Cupcake.findByIdAndDelete(cupCakeId);
 
     if (!deletedCupcake) {
       return NextResponse.json({ error: "Cupake not found" }, { status: 404 });
