@@ -84,6 +84,16 @@ export async function POST(request: Request) {
     return NextResponse.json(savedCupcake, { status: 201 });
   } catch (error) {
     console.error("Error creating cupcake:", error);
+    // Distinguish validation error specifically
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors = Object.values(error.errors).map((err) => {
+        if (err instanceof mongoose.Error.ValidatorError) {
+          return err.message;
+        }
+        return 'Unknown validation error';
+      });
+      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 405 });
+    }
     return NextResponse.json({ error: 'Error creating cupcake' }, { status: 500 });
   }
 }
