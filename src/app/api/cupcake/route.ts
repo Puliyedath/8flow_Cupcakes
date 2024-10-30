@@ -78,3 +78,30 @@ export async function POST(request: Request) {
   return NextResponse.json({ error: 'Error creating cupcake' }, { status: 500 });
 }
 
+// this is going to be paginated GET with the
+// use of aggregation framework
+type Json = boolean | number | string | null | { [key: string]: Json } | Array<Json>;
+export async function GET() {
+  await dbConnect(); // Connect to MongoDB
+
+  try {
+    // aggregation pipeline to reduce the calls/ cost to the DB,
+    // even though the spec doesn't mandate it
+    const page = 1
+    const limit = 3
+    const cupcakes = await Cupcake.aggregate([
+      {
+        $facet: {
+          metadata: [{ $count: 'totalCount'}],
+          data: [{ $skip: (page - 1 ) * limit  }, { $limit: limit }]
+        }
+      }
+    ])
+    const { data } = cupcakes[0] as { data: Json };
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    console.error("Error getting cupcake:", error);
+    return NextResponse.json({ error: "Error retrieving cupcakes" }, { status: 400 });
+  }
+}
+
