@@ -4,8 +4,8 @@ import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose'; // Import your database connection helper
 import Cupcake from '@/models/Cupcake'; // Import your Mongoose model
+import { ParamType } from '@/utils/types';
 
-type ParamType = { id: string };
 export async function DELETE(request: Request, context: { params: Promise<ParamType> }) {
   await dbConnect();
   try {

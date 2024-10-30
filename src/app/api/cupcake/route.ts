@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 // this is going to be paginated GET with the
 // use of aggregation framework
 export async function GET() {
-  await dbConnect(); // Connect to MongoDB
+  await dbConnect();
 
   try {
     // aggregation pipeline to reduce the calls/ cost to the DB,
