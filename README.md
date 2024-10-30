@@ -22,3 +22,6 @@ This script resides at the `/scripts/seed_data`, change the script to change the
 - `http POST http://localhost:3000/api/v2/cupcake   name="Vaniall Dream"`
 - `http DELETE http://localhost:3000/api/v2/cupcake/abc`
 - `http PUT http://localhost:3000/api/v2/cupcake  id=67215ad82f06a3cb5ca8b062 name="Vanilla Dream3"   price:=5`
+
+
+_Please Note, the GET API deviates a little from the spec since it introduces a page and a result limit._
