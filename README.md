@@ -16,4 +16,9 @@ This script resides at the `/scripts/seed_data`, change the script to change the
 
 ### Running the API calls against the servers
 - `docker-compose up --build`
-- `/rest_calls.sh` (chmod +x to set the executable bit)
+-  Install an http client cli [client](https://httpie.io/cli)
+- `http GET http://localhost:3000/api/v2/cupcake`
+- `http POST http://localhost:3000/api/v2/cupcake   price:=5`
+- `http POST http://localhost:3000/api/v2/cupcake   name="Vaniall Dream"`
+- `http DELETE http://localhost:3000/api/v2/cupcake/abc`
+- `http PUT http://localhost:3000/api/v2/cupcake  id=67215ad82f06a3cb5ca8b062 name="Vanilla Dream3"   price:=5`
