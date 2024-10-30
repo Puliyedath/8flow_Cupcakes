@@ -28,7 +28,7 @@ services:
       - '27017:27017'
     volumes:
       - mongo-data:/data/db
-      - ./scripts/init_cupcakes.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./scripts/seed_data.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - app-network
 

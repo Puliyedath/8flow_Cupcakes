@@ -1,7 +1,0 @@
-db = db.getSiblingDB("cupcakestore");
-
-db.createUser({
-  user: "cupcakeUser",
-  pwd: "securePassword123",
-  roles: [{ role: "readWrite", db: "cupcakestore" }],
-});
